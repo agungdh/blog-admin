@@ -1,16 +1,17 @@
-name: Build & Release
+name: Build
 
 on:
   push:
-    branches: [master]
-  release:
-    types: [published]
-
-permissions:
-  contents: write
+    branches: [master, main]
+    tags: ["v*"]
+  pull_request:
+    branches: [master, main]
 
 jobs:
   build:
+    if: "!startsWith(github.ref, 'refs/tags/')"
+    permissions:
+      contents: read
     runs-on: ubuntu-latest
 
     steps:
@@ -24,12 +25,45 @@ jobs:
 
       - run: npm run build
 
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/blog-admin
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download artifacts from build
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p dist
+          RUN_ID=$(gh run list \
+            --workflow build.yml \
+            --commit "${{ github.sha }}" \
+            --limit 10 \
+            --json databaseId,event,status,conclusion \
+            -q '[.[] | select(.event=="push" and .conclusion=="success") | .databaseId] | first')
+          if [ -z "$RUN_ID" ]; then
+            echo "no successful build run found for this commit"
+            exit 1
+          fi
+          echo "downloading artifacts from run $RUN_ID"
+          gh run download "$RUN_ID" --dir dist
+
       - name: Zip dist
-        if: github.event_name == 'release'
         run: zip -r dist.zip dist
 
-      - name: Upload release asset
-        if: github.event_name == 'release'
+      - name: Upload to release
         uses: softprops/action-gh-release@v2
         with:
           files: dist.zip
