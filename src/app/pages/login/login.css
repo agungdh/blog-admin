@@ -1,0 +1,32 @@
+.login-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100dvh;
+  background: #f5f5f5;
+}
+
+.login-card {
+  width: 400px;
+  max-width: calc(100vw - 32px);
+}
+
+mat-card-header {
+  margin-bottom: 16px;
+}
+
+mat-card-content form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.error-msg {
+  color: var(--mat-form-field-error-text-color, #f44336);
+  font-size: 14px;
+  padding: 8px 0;
+}
