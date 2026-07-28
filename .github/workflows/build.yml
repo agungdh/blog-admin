@@ -23,6 +23,12 @@ jobs:
 
       - run: npm ci
 
+      - name: Set production API URL
+        run: |
+          echo "export const environment = { apiBaseUrl: '${API_BASE_URL:-}' };" > src/environments/environment.ts
+        env:
+          API_BASE_URL: ${{ vars.API_BASE_URL || '' }}
+
       - run: npm run build
 
       - name: Upload artifact
