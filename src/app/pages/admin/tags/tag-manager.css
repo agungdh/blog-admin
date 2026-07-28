@@ -16,24 +16,9 @@
   max-width: 700px;
 }
 
-.inline-field {
-  width: 100%;
-}
-
 .actions-cell {
   white-space: nowrap;
   text-align: right;
-}
-
-.add-row td {
-  padding-top: 8px;
-  padding-bottom: 8px;
-}
-
-.load-more-wrapper {
-  display: flex;
-  justify-content: center;
-  padding: 24px 0;
 }
 
 code {
@@ -41,4 +26,20 @@ code {
   padding: 2px 6px;
   border-radius: 4px;
   font-size: 13px;
+}
+
+.sentinel {
+  height: 1px;
+}
+
+.spinner {
+  max-width: 700px;
+  margin-top: 8px;
+}
+
+.end-text {
+  text-align: center;
+  padding: 24px;
+  color: #999;
+  font-size: 14px;
 }

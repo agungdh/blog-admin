@@ -1,12 +1,11 @@
-import { Component, inject, signal, ChangeDetectionStrategy, OnInit, effect } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
+import { Component, inject, signal, ChangeDetectionStrategy, OnInit, ElementRef, ViewChild, OnDestroy } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { DatePipe } from '@angular/common';
 import { PostService } from '../../../shared/services/post.service';
 import { TitleService } from '../../../shared/services/title.service';
@@ -22,18 +21,15 @@ import { Post } from '../../../core/models';
     MatChipsModule,
     MatTooltipModule,
     MatProgressBarModule,
-    MatDialogModule,
     DatePipe,
   ],
   templateUrl: './post-list.html',
   styleUrl: './post-list.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class PostList implements OnInit {
+export class PostList implements OnInit, OnDestroy {
   private readonly postService = inject(PostService);
   private readonly titleService = inject(TitleService);
-  private readonly dialog = inject(MatDialog);
-  protected readonly router = inject(Router);
 
   posts = signal<Post[]>([]);
   loading = signal(false);
@@ -42,12 +38,33 @@ export class PostList implements OnInit {
 
   readonly columns = ['title', 'date', 'category', 'tags', 'actions'];
 
+  private observer?: IntersectionObserver;
+
+  @ViewChild('sentinel', { static: true }) sentinel!: ElementRef;
+
   constructor() {
     this.titleService.set('Posts');
   }
 
   ngOnInit(): void {
     this.loadPosts();
+    this.setupObserver();
+  }
+
+  ngOnDestroy(): void {
+    this.observer?.disconnect();
+  }
+
+  private setupObserver() {
+    this.observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && this.hasNext() && !this.loading()) {
+          this.loadMore();
+        }
+      },
+      { threshold: 0.1 }
+    );
+    this.observer.observe(this.sentinel.nativeElement);
   }
 
   loadPosts() {
@@ -64,6 +81,7 @@ export class PostList implements OnInit {
   }
 
   loadMore() {
+    if (!this.hasNext()) return;
     this.loading.set(true);
     this.postService.list(this.nextSlug()).subscribe({
       next: (page) => {
@@ -81,9 +99,5 @@ export class PostList implements OnInit {
     this.postService.delete(post.id).subscribe(() => {
       this.posts.update((p) => p.filter((x) => x.id !== post.id));
     });
-  }
-
-  categoryLabel(post: Post): string {
-    return post.category?.name ?? '-';
   }
 }

@@ -7,70 +7,67 @@
 
 @if (loading() && posts().length === 0) {
   <mat-progress-bar mode="indeterminate" />
-} @else {
-  <table mat-table [dataSource]="posts()">
-    <ng-container matColumnDef="title">
-      <th mat-header-cell *matHeaderCellDef>Title</th>
-      <td mat-cell *matCellDef="let p">
-        <a [routerLink]="['/admin/posts', p.id]" class="post-link">{{ p.title }}</a>
-      </td>
-    </ng-container>
+}
 
-    <ng-container matColumnDef="date">
-      <th mat-header-cell *matHeaderCellDef>Date</th>
-      <td mat-cell *matCellDef="let p">{{ p.date | date: 'mediumDate' }}</td>
-    </ng-container>
+<table mat-table [dataSource]="posts()">
+  <ng-container matColumnDef="title">
+    <th mat-header-cell *matHeaderCellDef>Title</th>
+    <td mat-cell *matCellDef="let p">
+      <a [routerLink]="['/admin/posts', p.id]" class="post-link">{{ p.title }}</a>
+    </td>
+  </ng-container>
 
-    <ng-container matColumnDef="category">
-      <th mat-header-cell *matHeaderCellDef>Category</th>
-      <td mat-cell *matCellDef="let p">
-        @if (p.category) {
-          <mat-chip class="category-chip">{{ p.category.name }}</mat-chip>
-        } @else {
-          <span class="muted">-</span>
-        }
-      </td>
-    </ng-container>
+  <ng-container matColumnDef="date">
+    <th mat-header-cell *matHeaderCellDef>Date</th>
+    <td mat-cell *matCellDef="let p">{{ p.date | date: 'mediumDate' }}</td>
+  </ng-container>
 
-    <ng-container matColumnDef="tags">
-      <th mat-header-cell *matHeaderCellDef>Tags</th>
-      <td mat-cell *matCellDef="let p">
-        <mat-chip-set>
-          @for (tag of p.tags; track tag.id) {
-            <mat-chip class="tag-chip">{{ tag.name }}</mat-chip>
-          }
-        </mat-chip-set>
-      </td>
-    </ng-container>
-
-    <ng-container matColumnDef="actions">
-      <th mat-header-cell *matHeaderCellDef></th>
-      <td mat-cell *matCellDef="let p" class="actions-cell">
-        <a mat-icon-button [routerLink]="['/admin/posts', p.id]" matTooltip="Edit">
-          <mat-icon>edit</mat-icon>
-        </a>
-        <button mat-icon-button color="warn" matTooltip="Delete" (click)="delete(p)">
-          <mat-icon>delete</mat-icon>
-        </button>
-      </td>
-    </ng-container>
-
-    <tr mat-header-row *matHeaderRowDef="columns"></tr>
-    <tr mat-row *matRowDef="let row; columns: columns"></tr>
-  </table>
-
-  @if (hasNext()) {
-    <div class="load-more-wrapper">
-      @if (loading()) {
-        <mat-progress-bar mode="indeterminate" />
+  <ng-container matColumnDef="category">
+    <th mat-header-cell *matHeaderCellDef>Category</th>
+    <td mat-cell *matCellDef="let p">
+      @if (p.category) {
+        <mat-chip class="category-chip">{{ p.category.name }}</mat-chip>
+      } @else {
+        <span class="muted">-</span>
       }
-      <button mat-stroked-button (click)="loadMore()" [disabled]="loading()">
-        Load More
-      </button>
-    </div>
-  }
+    </td>
+  </ng-container>
 
-  @if (!loading() && posts().length === 0) {
-    <div class="empty-state">No posts yet. Create your first post!</div>
-  }
+  <ng-container matColumnDef="tags">
+    <th mat-header-cell *matHeaderCellDef>Tags</th>
+    <td mat-cell *matCellDef="let p">
+      <mat-chip-set>
+        @for (tag of p.tags; track tag.id) {
+          <mat-chip class="tag-chip">{{ tag.name }}</mat-chip>
+        }
+      </mat-chip-set>
+    </td>
+  </ng-container>
+
+  <ng-container matColumnDef="actions">
+    <th mat-header-cell *matHeaderCellDef></th>
+    <td mat-cell *matCellDef="let p" class="actions-cell">
+      <a mat-icon-button [routerLink]="['/admin/posts', p.id]" matTooltip="Edit">
+        <mat-icon>edit</mat-icon>
+      </a>
+      <button mat-icon-button color="warn" matTooltip="Delete" (click)="delete(p)">
+        <mat-icon>delete</mat-icon>
+      </button>
+    </td>
+  </ng-container>
+
+  <tr mat-header-row *matHeaderRowDef="columns"></tr>
+  <tr mat-row *matRowDef="let row; columns: columns"></tr>
+</table>
+
+<div #sentinel class="sentinel"></div>
+
+@if (loading() && posts().length > 0) {
+  <div class="spinner">
+    <mat-progress-bar mode="indeterminate" />
+  </div>
+}
+
+@if (!loading() && !hasNext() && posts().length > 0) {
+  <div class="end-text">All posts loaded</div>
 }

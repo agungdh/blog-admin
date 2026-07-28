@@ -34,9 +34,29 @@ export const routes: Routes = [
           import('./pages/admin/categories/category-manager').then((m) => m.CategoryManager),
       },
       {
+        path: 'categories/new',
+        loadComponent: () =>
+          import('./pages/admin/categories/category-form').then((m) => m.CategoryForm),
+      },
+      {
+        path: 'categories/:id',
+        loadComponent: () =>
+          import('./pages/admin/categories/category-form').then((m) => m.CategoryForm),
+      },
+      {
         path: 'tags',
         loadComponent: () =>
           import('./pages/admin/tags/tag-manager').then((m) => m.TagManager),
+      },
+      {
+        path: 'tags/new',
+        loadComponent: () =>
+          import('./pages/admin/tags/tag-form').then((m) => m.TagForm),
+      },
+      {
+        path: 'tags/:id',
+        loadComponent: () =>
+          import('./pages/admin/tags/tag-form').then((m) => m.TagForm),
       },
       { path: '', redirectTo: 'posts', pathMatch: 'full' },
     ],

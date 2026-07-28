@@ -1,107 +1,49 @@
 <div class="page-header">
   <h2>Categories</h2>
-  @if (!creating()) {
-    <button mat-flat-button (click)="startCreate()">
-      <mat-icon>add</mat-icon> Add Category
-    </button>
-  }
+  <a mat-flat-button routerLink="/admin/categories/new">
+    <mat-icon>add</mat-icon> Add Category
+  </a>
 </div>
 
 @if (loading() && categories().length === 0) {
   <mat-progress-bar mode="indeterminate" />
-} @else {
-  <table mat-table [dataSource]="categories()" class="crud-table">
-    <ng-container matColumnDef="name">
-      <th mat-header-cell *matHeaderCellDef>Name</th>
-      <td mat-cell *matCellDef="let cat">
-        @if (editingId() === cat.id) {
-          <mat-form-field appearance="outline" class="inline-field">
-            <input matInput [formControl]="$any(editForm.get('name'))" (input)="generateSlug('edit')" />
-            @if (editErrors()['name']) {
-              <mat-error>{{ fieldError('name', 'edit') }}</mat-error>
-            }
-          </mat-form-field>
-        } @else {
-          {{ cat.name }}
-        }
-      </td>
-    </ng-container>
+}
 
-    <ng-container matColumnDef="slug">
-      <th mat-header-cell *matHeaderCellDef>Slug</th>
-      <td mat-cell *matCellDef="let cat">
-        @if (editingId() === cat.id) {
-          <mat-form-field appearance="outline" class="inline-field">
-            <input matInput [formControl]="$any(editForm.get('slug'))" />
-            @if (editErrors()['slug']) {
-              <mat-error>{{ fieldError('slug', 'edit') }}</mat-error>
-            }
-          </mat-form-field>
-        } @else {
-          <code>{{ cat.slug }}</code>
-        }
-      </td>
-    </ng-container>
+<table mat-table [dataSource]="categories()" class="crud-table">
+  <ng-container matColumnDef="name">
+    <th mat-header-cell *matHeaderCellDef>Name</th>
+    <td mat-cell *matCellDef="let cat">{{ cat.name }}</td>
+  </ng-container>
 
-    <ng-container matColumnDef="actions">
-      <th mat-header-cell *matHeaderCellDef></th>
-      <td mat-cell *matCellDef="let cat" class="actions-cell">
-        @if (editingId() === cat.id) {
-          <button mat-icon-button color="primary" (click)="saveEdit(cat.id)">
-            <mat-icon>check</mat-icon>
-          </button>
-          <button mat-icon-button (click)="cancelEdit()">
-            <mat-icon>close</mat-icon>
-          </button>
-        } @else {
-          <button mat-icon-button (click)="startEdit(cat)" [disabled]="editingId() !== null">
-            <mat-icon>edit</mat-icon>
-          </button>
-          <button mat-icon-button color="warn" (click)="delete(cat.id, cat.name)" [disabled]="editingId() !== null">
-            <mat-icon>delete</mat-icon>
-          </button>
-        }
-      </td>
-    </ng-container>
+  <ng-container matColumnDef="slug">
+    <th mat-header-cell *matHeaderCellDef>Slug</th>
+    <td mat-cell *matCellDef="let cat"><code>{{ cat.slug }}</code></td>
+  </ng-container>
 
-    <tr mat-header-row *matHeaderRowDef="columns"></tr>
-    <tr mat-row *matRowDef="let row; columns: columns"></tr>
-
-    @if (creating()) {
-      <tr class="add-row">
-        <td>
-          <mat-form-field appearance="outline" class="inline-field">
-            <input matInput [formControl]="$any(addForm.get('name'))" (input)="generateSlug('add')" placeholder="Name" />
-            @if (addErrors()['name']) {
-              <mat-error>{{ fieldError('name', 'add') }}</mat-error>
-            }
-          </mat-form-field>
-        </td>
-        <td>
-          <mat-form-field appearance="outline" class="inline-field">
-            <input matInput [formControl]="$any(addForm.get('slug'))" placeholder="Slug" />
-            @if (addErrors()['slug']) {
-              <mat-error>{{ fieldError('slug', 'add') }}</mat-error>
-            }
-          </mat-form-field>
-        </td>
-        <td class="actions-cell">
-          <button mat-icon-button color="primary" (click)="saveCreate()">
-            <mat-icon>check</mat-icon>
-          </button>
-          <button mat-icon-button (click)="cancelCreate()">
-            <mat-icon>close</mat-icon>
-          </button>
-        </td>
-      </tr>
-    }
-  </table>
-
-  @if (hasNext()) {
-    <div class="load-more-wrapper">
-      <button mat-stroked-button (click)="loadMore()" [disabled]="loading()">
-        Load More
+  <ng-container matColumnDef="actions">
+    <th mat-header-cell *matHeaderCellDef></th>
+    <td mat-cell *matCellDef="let cat" class="actions-cell">
+      <a mat-icon-button [routerLink]="['/admin/categories', cat.id]" matTooltip="Edit">
+        <mat-icon>edit</mat-icon>
+      </a>
+      <button mat-icon-button color="warn" matTooltip="Delete" (click)="delete(cat.id, cat.name)">
+        <mat-icon>delete</mat-icon>
       </button>
-    </div>
-  }
+    </td>
+  </ng-container>
+
+  <tr mat-header-row *matHeaderRowDef="columns"></tr>
+  <tr mat-row *matRowDef="let row; columns: columns"></tr>
+</table>
+
+<div #sentinel class="sentinel"></div>
+
+@if (loading() && categories().length > 0) {
+  <div class="spinner">
+    <mat-progress-bar mode="indeterminate" />
+  </div>
+}
+
+@if (!loading() && !hasNext() && categories().length > 0) {
+  <div class="end-text">All categories loaded</div>
 }

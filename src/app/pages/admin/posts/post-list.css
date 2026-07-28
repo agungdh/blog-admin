@@ -39,17 +39,17 @@
   color: #999;
 }
 
-.load-more-wrapper {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 24px 0;
-  gap: 12px;
+.sentinel {
+  height: 1px;
 }
 
-.empty-state {
+.spinner {
+  margin-top: 8px;
+}
+
+.end-text {
   text-align: center;
-  padding: 48px;
+  padding: 24px;
   color: #999;
-  font-size: 16px;
+  font-size: 14px;
 }
